@@ -12,3 +12,5 @@ Les variables incluent des données telles que l’âge, le sexe, le type de dou
 Cette base contient environ 303 enregistrements (dans la version la plus utilisée, celle de Cleveland) et 14 attributs principaux. Elle est fréquemment utilisée pour l’entraînement et l’évaluation de modèles de classification en apprentissage automatique, notamment pour développer des systèmes d’aide à la décision médicale capables de détecter précocement les risques cardiaques.
 
 
+<img src="data.png" style="height:464px;margin-right:432px"/>
+
