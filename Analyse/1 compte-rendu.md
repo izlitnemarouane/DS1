@@ -1,5 +1,18 @@
+# IZLITNE MAROUANE
+
+<img src="IZLITNE MAROUANE.jpg" style="height:300px;margin-right:300px; float:left; border-radius:10px;"/>
+
+
+**Numéro d'étudiant** : 22006529
+**Classe** : CAC2
+
+<br clear="left"/>
+
+---
+
+
 # Compte rendu
-## Analyse Prédictive des Ventes — Business_Sales(Dataset)2025
+## Analyse Prédictive des Ventes Business_Sales(Dataset)2025
 
 **Date :** 29 Novembre 2025
 
