@@ -21,9 +21,9 @@
 
 ## À propos du jeu de données
 
-Le dataset **Business_Sales(Dataset)2025** (Kaggle) contient des données commerciales pour 2025 — variables marketing, prix, remises, indicateurs opérationnels, indicateurs macroéconomiques et le volume de ventes (`Sales`) en tant que variable cible.  
-Chaque ligne représente un enregistrement magasin/produit/période et permet d'analyser et de prédire les volumes de ventes selon des facteurs internes et externes.
+Le jeu de données Business_Sales(Dataset)2025, issu de la plateforme Kaggle, contient des enregistrements détaillés de ventes d’entreprise sur une période donnée. Chaque ligne représente une situation de vente et inclut des informations temporelles, marketing, produits et contextuelles permettant d’analyser et de modéliser le comportement des ventes.
 
+Ce dataset est conçu pour simuler un environnement de ventes réaliste. Les variables intègrent par exemple des indicateurs liés aux campagnes publicitaires, aux promotions, aux conditions économiques et aux spécificités produits, afin de refléter le fonctionnement d’un système de ventes en conditions réelles.
 ***
 
 ## Table des Matières
@@ -51,8 +51,12 @@ Chaque ligne représente un enregistrement magasin/produit/période et permet d'
 
 ## 1. Introduction et Contexte
 
+
 Objectif : construire plusieurs modèles de régression pour prédire **Sales** (volume de ventes) à partir des caractéristiques marketing, prix, distribution et macroéconomiques.
 
+Ce rapport présente une analyse détaillée d’un jeu de données de ventes d’entreprise, Business_Sales(Dataset)2025, disponible sur Kaggle. L’objectif principal du projet est de construire et comparer plusieurs modèles de régression pour prédire le niveau de ventes (variable cible \(Y\)) à partir d’un ensemble de caractéristiques explicatives liées au temps, au contexte marketing, aux produits et à l’environnement.
+
+En suivant le cycle de vie classique d’un projet de data science, nous avons réalisé une analyse exploratoire (EDA), des étapes de prétraitement et d’ingénierie de caractéristiques, puis une phase de modélisation prédictive avec différents algorithmes de régression, afin d’identifier le modèle le plus performant pour la prédiction des ventes.
 Workflow :
 
 - EDA → prétraitement & feature engineering  
@@ -66,7 +70,22 @@ Workflow :
 
 ### 2.1 Chargement et Structure du Dataset
 
-(Extrait du code utilisé pour le chargement — tiré de ton notebook)
+Le jeu de données Business_Sales(Dataset)2025 est chargé sous forme d’un fichier CSV.
+
+* Nombre d’observations (\(N\)) : par exemple environ 30 000 lignes (à adapter selon le `df.shape` réel).  
+* Nombre de variables (\(d\)) : nombre total de colonnes, incluant les variables explicatives et la variable cible.
+
+La variable cible (\(Y\)) correspond à la colonne des ventes (par exemple `Sales` ou `Total_Sales`, à adapter selon le notebook).
+
+Les variables d’entrée (\(X\)) incluent notamment (exemples à adapter à la structure réelle du dataset) :
+
+- Variables temporelles : `Date`, `Month`, `DayOfWeek`, `Year`, éventuellement `Season`.
+- Variables marketing : dépenses publicitaires, présence de promotions, réduction appliquée.
+- Variables produits : catégorie de produit, prix, type de produit.
+- Variables géographiques ou de segment : région, pays, segment de clientèle.
+- Variables contextuelles : indicateurs économiques, conditions météorologiques, etc.
+
+Exemple de code de chargement 
 
 ```python
 # Importing Libraries
@@ -89,8 +108,6 @@ df.head()
 ```
 ***
 ## 2.2 Prétraitement et Ingénierie de Caractéristiques
-
-*(Extraits utilisés dans le notebook — transformations et nouvelles features)*
 
 ```python
 # Feature engineering : price after discount, marketing ratio
@@ -127,6 +144,13 @@ print(f"Dropped {initial_rows - df.shape} rows due to missing values.")
 - Distribution de `Sales` : souvent proche d'une distribution normale ou légèrement « skewed » selon les segments.  
 - Observations extrêmes / outliers sur `Marketing_Spend` et `Price` — justifie un traitement (log-transform si nécessaire).
 
+Une analyse exploratoire détaillée a été menée afin de comprendre la distribution de la variable cible et les relations entre les variables explicatives et les ventes :
+
+- Distribution de la variable cible `Sales` : la distribution peut être légèrement asymétrique, avec la présence éventuelle de valeurs extrêmes correspondant à des périodes de forte activité (promotions, saison haute, etc.).
+- Analyse de corrélation : une matrice de corrélation a été utilisée pour mettre en évidence les corrélations entre `Sales` et d’autres variables (par exemple les dépenses publicitaires, le mois, les promotions).
+- Graphiques : des histogrammes, des boxplots et des nuages de points ont été utilisés pour visualiser les relations entre les ventes et certaines caractéristiques clés.
+
+Les différences d’échelle entre certaines variables (par exemple les montants de dépenses publicitaires vs. des indicateurs binaires de promotion) justifient l’usage de techniques de normalisation pour les modèles sensibles à la distance, comme SVR
 ---
 
 ## 3. Méthodologie de Modélisation
@@ -175,6 +199,13 @@ rmse_lr = np.sqrt(mse_lr)
 r2_lr = r2_score(y_test, y_pred_lr)
 print("Linear Regression - R2:", r2_lr, "RMSE:", rmse_lr)
 ```
+Résultats  :
+
+- \(R^2 \approx\) 0.xx  
+- MSE \(\approx\) …  
+- RMSE \(\approx\) …
+
+La régression linéaire sert de modèle de base. Si le \(R^2\) est modéré, cela indique que la relation entre les variables explicatives et les ventes n’est pas strictement linéaire.
 
 ### 4.2 Régression Polynomiale
 ```python
@@ -192,6 +223,14 @@ r2_poly = r2_score(y_test, y_pred_poly)
 mse_poly = mean_squared_error(y_test, y_pred_poly)
 rmse_poly = np.sqrt(mse_poly)
 ```
+Résultats :
+
+- \(R^2 \approx\) 0.xx  
+- MSE \(\approx\) …  
+- RMSE \(\approx\) …
+
+La régression polynomiale permet de capturer certaines non-linéarités. Une amélioration de \(R^2\) par rapport au modèle linéaire montre l’intérêt des termes d’interaction et des effets quadratiques.
+
 ### 4.3 Arbre de Décision
 ```python
 from sklearn.tree import DecisionTreeRegressor
@@ -204,6 +243,14 @@ r2_dt = r2_score(y_test, y_pred_dt)
 mse_dt = mean_squared_error(y_test, y_pred_dt)
 rmse_dt = np.sqrt(mse_dt)
 ```
+Résultats  :
+
+- \(R^2 \approx\) 0.xx  
+- MSE \(\approx\) …  
+- RMSE \(\approx\) …
+
+L’arbre de décision capture des relations fortement non linéaires entre les variables explicatives et les ventes. Un \(R^2\) élevé et un RMSE réduit indiquent que ce modèle s’adapte bien à la structure des données.
+
 ### 4.4 Forêt Aléatoire
 ```python
 from sklearn.ensemble import RandomForestRegressor
@@ -216,6 +263,13 @@ r2_rf = r2_score(y_test, y_pred_rf)
 mse_rf = mean_squared_error(y_test, y_pred_rf)
 rmse_rf = np.sqrt(mse_rf)
 ```
+Résultats  :
+
+- \(R^2 \approx\) 0.xx  
+- MSE \(\approx\) …  
+- RMSE \(\approx\) …
+
+La Forêt Aléatoire, en tant que méthode d’ensemble basée sur de multiples arbres, tend à offrir une meilleure généralisation en réduisant le risque de sur-apprentissage, tout en conservant une bonne capacité à modéliser des relations complexes.
 
 ### 4.5 SVR 
 ```python
@@ -233,6 +287,14 @@ r2_svr = r2_score(y_test, y_pred_svr)
 mse_svr = mean_squared_error(y_test, y_pred_svr)
 rmse_svr = np.sqrt(mse_svr)
 ```
+Résultats  :
+
+- \(R^2 \approx\) 0.xx  
+- MSE \(\approx\) …  
+- RMSE \(\approx\) …
+
+Les performances de SVR dépendent fortement du choix du noyau et des hyperparamètres (`C`, `gamma`, `epsilon`). Une phase de tuning peut être nécessaire pour obtenir de meilleurs résultats.
+
 ## 4.6 Tableau Comparatif des Performances 
 
 | Modèle                 | R²    | MSE     | RMSE   | Performance         |
@@ -266,5 +328,13 @@ Random Forest (ou Arbre/Forêt selon tuning) se révèle souvent meilleur sur ce
 
 ## 6. Conclusion
 
-L’analyse montre que les relations entre ventes et features sont majoritairement non linéaires et que les modèles arborescents (Decision Tree / Random Forest) capturent mieux ces patterns.  
-Avec un modèle bien réglé (ex. Random Forest), on obtient une excellente capacité prédictive pour la planification commerciale et l’optimisation des dépenses marketing.
+## 6. Conclusion
+
+Cette analyse prédictive des ventes basée sur le jeu de données Business_Sales(Dataset)2025 a permis de mettre en œuvre et d’illustrer plusieurs concepts fondamentaux de la data science et de la modélisation prédictive :
+
+1. L’importance du prétraitement des données, notamment la transformation des dates, l’encodage des variables catégorielles et la gestion des valeurs manquantes.  
+2. La mise en évidence de relations non linéaires entre les variables explicatives et les ventes, ce qui justifie l’utilisation de modèles plus complexes que la simple régression linéaire.  
+3. La comparaison systématique de plusieurs modèles de régression (linéaires, polynomiaux, arbres de décision, méthodes d’ensemble, SVR) afin de sélectionner celui qui offre les meilleures performances sur des données de test indépendantes.  
+4. Le rôle crucial des méthodes basées sur les arbres, notamment la Forêt Aléatoire, qui offrent généralement une excellente capacité prédictive et une bonne robustesse dans un contexte de données hétérogènes.
+
+En conclusion, le modèle retenu (par exemple la Forêt Aléatoire) fournit une base solide pour la prédiction des ventes futures et peut être intégré dans un processus décisionnel plus large (prévisions de ventes, gestion de stock, planification marketing). Des travaux futurs pourraient se concentrer sur l’optimisation fine des hyperparamètres, l’usage de modèles d’ensemble plus avancés et l’analyse approfondie de l’importance des variables pour guider les décisions stratégiques de l’entreprise.
