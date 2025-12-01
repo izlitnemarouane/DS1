@@ -1,94 +1,74 @@
 # IZLITNE MAROUANE
 
-<img src="IZLITNE MAROUANE.jpg" style="height:300px;margin-right:300px; float:left; border-radius:10px;"/>
+<img src="IZLITNE MAROUANE.jpg" width="200" align="left" style="margin-right: 20px; border-radius: 10px;"/>
 
+<br>
 
-**Numéro d'étudiant** : 22006529
-
+**Numéro d'étudiant** : 22006529  
 **Classe** : CAC2
 
 <br clear="left"/>
 
 ---
 
+# Compte rendu : Analyse Prédictive des Ventes (Business_Sales_EDA)
 
-# Compte rendu
-## Analyse Prédictive des Ventes Business_Sales(Dataset)2025
+**Date :** 26 Novembre 2025
 
-**Date :** 29 Novembre 2025
-
-***
+---
 
 ## À propos du jeu de données
 
-Le jeu de données Business_Sales(Dataset)2025, issu de la plateforme Kaggle, contient des enregistrements détaillés de ventes d’entreprise sur une période donnée. Chaque ligne représente une situation de vente et inclut des informations temporelles, marketing, produits et contextuelles permettant d’analyser et de modéliser le comportement des ventes.
+Le jeu de données **Business_Sales_EDA**, utilisé dans cette analyse, recense des transactions de vente détaillées pour divers produits (vêtements, chaussures, vestes). Chaque ligne représente un produit spécifique avec ses caractéristiques intrinsèques et contextuelles.
 
-Ce dataset est conçu pour simuler un environnement de ventes réaliste. Les variables intègrent par exemple des indicateurs liés aux campagnes publicitaires, aux promotions, aux conditions économiques et aux spécificités produits, afin de refléter le fonctionnement d’un système de ventes en conditions réelles.
-***
+L'objectif est de prédire la variable cible **Sales Volume** (Volume des ventes) en fonction de divers facteurs marketing et produits tels que :
+* **Positionnement** : Emplacement dans le magasin (Aisle, End-cap, Front of Store).
+* **Marketing** : Indicateurs de promotion (`Promotion`, `Seasonal`).
+* **Caractéristiques Produit** : Catégorie, Prix, Marque, Matériau, Origine.
+
+Ce dataset permet d'évaluer l'impact des stratégies de mise en avant et des caractéristiques produits sur la performance commerciale.
+
+---
 
 ## Table des Matières
 
-1. [Introduction et Contexte](#1-introduction-et-contexte)  
-2. [Analyse Exploratoire des Données (Data Analysis)](#2-analyse-exploratoire-des-données-data-analysis)  
-   - [2.1 Chargement et Structure du Dataset](#21-chargement-et-structure-du-dataset)  
-   - [2.2 Prétraitement et Ingénierie de Caractéristiques](#22-prétraitement-et-ingénierie-de-caractéristiques)  
-   - [2.3 Gestion des Valeurs Manquantes](#23-gestion-des-valeurs-manquantes)  
-   - [2.4 Analyse Statistique et Visuelle](#24-analyse-statistique-et-visuelle)  
-3. [Méthodologie de Modélisation](#3-méthodologie-de-modélisation)  
-   - [3.1 Séparation des Données (Data Split)](#31-séparation-des-données-data-split)  
-   - [3.2 Modèles de Régression Testés](#32-modèles-de-régression-testés)  
-4. [Résultats et Comparaison des Modèles](#4-résultats-et-comparaison-des-modèles)  
-   - [4.1 Régression Linéaire (R², RMSE)](#41-régression-linéaire)  
-   - [4.2 Régression Polynomiale (R², RMSE)](#42-régression-polynomiale)  
-   - [4.3 Arbre de Décision (R², RMSE)](#43-arbre-de-décision)  
-   - [4.4 Forêt Aléatoire (R², RMSE)](#44-forêt-aléatoire)  
-   - [4.5 SVR (R², RMSE)](#45-svr)  
-   - [4.6 Tableau Comparatif des Performances](#46-tableau-comparatif-des-performances)  
-5. [Analyse des Résultats et Recommandations](#5-analyse-des-résultats-et-recommandations)  
-6. [Conclusion](#6-conclusion)  
+1. [Introduction et Contexte](#1-introduction-et-contexte)
+2. [Analyse Exploratoire des Données (EDA)](#2-analyse-exploratoire-des-données-eda)
+    - [2.1 Chargement et Aperçu](#21-chargement-et-aperçu)
+    - [2.2 Prétraitement et Encodage](#22-prétraitement-et-encodage)
+    - [2.3 Analyse des Valeurs Manquantes](#23-analyse-des-valeurs-manquantes)
+3. [Méthodologie de Modélisation](#3-méthodologie-de-modélisation)
+    - [3.1 Séparation des Données (Data Split)](#31-séparation-des-données-data-split)
+4. [Implémentation des Modèles et Résultats](#4-implémentation-des-modèles-et-résultats)
+    - [4.1 Régression Linéaire](#41-régression-linéaire)
+    - [4.2 Arbre de Décision (Decision Tree)](#42-arbre-de-décision)
+    - [4.3 Forêt Aléatoire (Random Forest)](#43-forêt-aléatoire)
+    - [4.4 Support Vector Regressor (SVR)](#44-support-vector-regressor)
+    - [4.5 Gradient Boosting Regressor (Le Meilleur Modèle)](#45-gradient-boosting-regressor)
+5. [Tableau Comparatif et Analyse](#5-tableau-comparatif-et-analyse)
+6. [Conclusion](#6-conclusion)
 
-***
+---
 
 ## 1. Introduction et Contexte
 
+L'objectif de ce projet est de développer un modèle de machine learning capable de prédire le **Volume des Ventes** ($Y$) avec la plus grande précision possible. Nous avons comparé plusieurs algorithmes de régression pour déterminer lequel capture le mieux les relations entre les variables explicatives ($X$) et la cible.
 
-Objectif : construire plusieurs modèles de régression pour prédire **Sales** (volume de ventes) à partir des caractéristiques marketing, prix, distribution et macroéconomiques.
+La démarche suivie est la suivante :
+1.  Nettoyage et encodage des données (traitement des variables catégorielles comme "Promotion" ou "Seasonal").
+2.  Séparation des données en ensembles d'entraînement et de test.
+3.  Entraînement de 5 modèles distincts.
+4.  Comparaison basée sur le $R^2$ (coefficient de détermination), le MAE (erreur absolue moyenne) et le RMSE.
 
-Ce rapport présente une analyse détaillée d’un jeu de données de ventes d’entreprise, Business_Sales(Dataset)2025, disponible sur Kaggle. L’objectif principal du projet est de construire et comparer plusieurs modèles de régression pour prédire le niveau de ventes (variable cible \(Y\)) à partir d’un ensemble de caractéristiques explicatives liées au temps, au contexte marketing, aux produits et à l’environnement.
+---
 
-En suivant le cycle de vie classique d’un projet de data science, nous avons réalisé une analyse exploratoire (EDA), des étapes de prétraitement et d’ingénierie de caractéristiques, puis une phase de modélisation prédictive avec différents algorithmes de régression, afin d’identifier le modèle le plus performant pour la prédiction des ventes.
-Workflow :
+## 2. Analyse Exploratoire des Données (EDA)
 
-- EDA → prétraitement & feature engineering  
-- Séparation train/test  
-- Entraînement de modèles (linéaire, polynômiale, arbre, Random Forest, SVR)  
-- Évaluation comparée avec \(R^2\), MSE, RMSE  
+### 2.1 Chargement et Aperçu
 
-***
-
-## 2. Analyse Exploratoire des Données (Data Analysis)
-
-### 2.1 Chargement et Structure du Dataset
-
-Le jeu de données Business_Sales(Dataset)2025 est chargé sous forme d’un fichier CSV.
-
-* Nombre d’observations (\(N\)) : par exemple environ 30 000 lignes (à adapter selon le `df.shape` réel).  
-* Nombre de variables (\(d\)) : nombre total de colonnes, incluant les variables explicatives et la variable cible.
-
-La variable cible (\(Y\)) correspond à la colonne des ventes (par exemple `Sales` ou `Total_Sales`, à adapter selon le notebook).
-
-Les variables d’entrée (\(X\)) incluent notamment (exemples à adapter à la structure réelle du dataset) :
-
-- Variables temporelles : `Date`, `Month`, `DayOfWeek`, `Year`, éventuellement `Season`.
-- Variables marketing : dépenses publicitaires, présence de promotions, réduction appliquée.
-- Variables produits : catégorie de produit, prix, type de produit.
-- Variables géographiques ou de segment : région, pays, segment de clientèle.
-- Variables contextuelles : indicateurs économiques, conditions météorologiques, etc.
-
-Exemple de code de chargement 
+Le dataset est chargé avec Pandas. Nous observons que le fichier utilise le point-virgule (`;`) comme séparateur.
 
 ```python
-# Importing Libraries
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -96,245 +76,197 @@ import seaborn as sns
 import warnings
 warnings.filterwarnings("ignore")
 
-# Chargement du dataset (chemin local)
-df = pd.read_csv('Business_Sales_2025.csv')  # nom du fichier selon ton notebook
-print("Dimensions :", df.shape)
-df.info()
+df = pd.read_csv('Business_sales_EDA.csv', sep=';') 
+print(f"Dimensions du dataset : {df.shape}")
 df.head()
-## Observations (issues de l'EDA)
-
-- Observations totales : environ 10 000 (selon le fichier).  
-- Colonnes principales : `Price`, `Marketing_Spend`, `Distribution_Score`, `Customer_Satisfaction`, `Competitor_Price`, `Discount`, `Store_Area`, `Economic_Index`, `Holiday_Impact`, `Sales`, etc.
 ```
-***
-## 2.2 Prétraitement et Ingénierie de Caractéristiques
+
+### 2.2 Prétraitement et Encodage
+
+Les variables telles que `Promotion`, `Seasonal`, et `Product Position` sont de nature **catégorielle**. Nous utilisons le **Label Encoding** pour les transformer en valeurs numériques.
 
 ```python
-# Feature engineering : price after discount, marketing ratio
-df['Price_After_Discount'] = df['Price'] * (1 - df['Discount'])
-df['Marketing_Ratio'] = df['Marketing_Spend'] / (df['Price'] + 1e-6)
+from sklearn.preprocessing import LabelEncoder
 
-# Encodage One-Hot pour 'Season' si présent
-if 'Season' in df.columns:
-    df = pd.get_dummies(df, columns=['Season'], drop_first=True)
+le = LabelEncoder()
+cat_cols = ['Product Position', 'Promotion', 'Product Category', 'Seasonal', 
+            'brand', 'section', 'season', 'material', 'origin']
 
-# Suppression d'éventuelles colonnes non pertinentes
-drop_cols = ['ID','Date']  # adapter selon les colonnes réelles
-for c in drop_cols:
-    if c in df.columns:
-        df = df.drop(columns=[c])
+for col in cat_cols:
+    if col in df.columns:
+        df[col] = le.fit_transform(df[col].astype(str))
+
+df = df.drop(columns=['url', 'name', 'description', 'currency', 'terms'], errors='ignore')
 ```
-## 2.3 Gestion des Valeurs Manquantes
-```python
-# Vérifier les valeurs manquantes et supprimer/remplir si nécessaire
-missing = df.isnull().sum()
-print(missing[missing > 0])
 
-# Exemple de traitement simple : suppression des lignes s'il y a peu de NaN
-initial_rows = df.shape
+### 2.3 Analyse des Valeurs Manquantes
+Avant de modéliser, il est essentiel de vérifier et de gérer les valeurs manquantes (NaN). Nous effectuons une vérification, puis nous procédons à une suppression simple des lignes contenant des valeurs manquantes (df.dropna()) pour garantir l'intégrité des données d'entraînement.
+```python
+missing_values = df.isnull().sum()
+print(missing_values[missing_values > 0])
 df = df.dropna()
-print(f"Dropped {initial_rows - df.shape} rows due to missing values.")
 ```
 
----
-
-## 2.4 Analyse Statistique et Visuelle
-
-- Corrélations visuelles entre `Marketing_Spend`, `Price_After_Discount`, `Customer_Satisfaction` et `Sales`.  
-- Distribution de `Sales` : souvent proche d'une distribution normale ou légèrement « skewed » selon les segments.  
-- Observations extrêmes / outliers sur `Marketing_Spend` et `Price` — justifie un traitement (log-transform si nécessaire).
-
-Une analyse exploratoire détaillée a été menée afin de comprendre la distribution de la variable cible et les relations entre les variables explicatives et les ventes :
-
-- Distribution de la variable cible `Sales` : la distribution peut être légèrement asymétrique, avec la présence éventuelle de valeurs extrêmes correspondant à des périodes de forte activité (promotions, saison haute, etc.).
-- Analyse de corrélation : une matrice de corrélation a été utilisée pour mettre en évidence les corrélations entre `Sales` et d’autres variables (par exemple les dépenses publicitaires, le mois, les promotions).
-- Graphiques : des histogrammes, des boxplots et des nuages de points ont été utilisés pour visualiser les relations entre les ventes et certaines caractéristiques clés.
-
-Les différences d’échelle entre certaines variables (par exemple les montants de dépenses publicitaires vs. des indicateurs binaires de promotion) justifient l’usage de techniques de normalisation pour les modèles sensibles à la distance, comme SVR
 ---
 
 ## 3. Méthodologie de Modélisation
 
 ### 3.1 Séparation des Données (Data Split)
+Nous séparons nos données en deux ensembles pour évaluer la capacité de généralisation des modèles :
+
+Train (80%) : Utilisé pour l'entraînement.
+
+Test (20%) : Utilisé pour l'évaluation finale.
+
 ```python
 from sklearn.model_selection import train_test_split
 
-y = df['Sales']
-X = df.drop(columns=['Sales'])
+X = df.drop(columns=['Sales Volume', 'Product ID'])
+y = df['Sales Volume']
 
-X_train, X_test, y_train, y_test = train_test_split(
-X, y, test_size=0.2, random_state=42
-)
-print(X_train.shape, X_test.shape)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+print(f"Taille de l'ensemble d'entraînement X : {X_train.shape}")
+print(f"Taille de l'ensemble de test X : {X_test.shape}")
 ```
-
-### 3.2 Modèles de Régression Testés
-
-Les modèles entraînés :
-
-- Régression Linéaire  
-- Régression Polynomiale (degree = 2)  
-- Decision Tree Regressor  
-- Random Forest Regressor  
-- Support Vector Regression (avec `StandardScaler`)
 
 ---
 
-## 4. Résultats et Comparaison des Modèles
-
-Métriques évaluées : \(R^2\), MSE, RMSE sur l'ensemble test.
+## 4. Implémentation des Modèles et Résultats
 
 ### 4.1 Régression Linéaire
+
+La Régression Linéaire cherche une relation linéaire directe. Elle sert de modèle de base pour évaluer la performance initiale
+
 ```python
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error, r2_score
-import numpy as np
+from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
 
-model_lr = LinearRegression()
-model_lr.fit(X_train, y_train)
-y_pred_lr = model_lr.predict(X_test)
+lr_model = LinearRegression()
+lr_model.fit(X_train, y_train)
+y_pred_lr = lr_model.predict(X_test)
 
-mse_lr = mean_squared_error(y_test, y_pred_lr)
-rmse_lr = np.sqrt(mse_lr)
-r2_lr = r2_score(y_test, y_pred_lr)
-print("Linear Regression - R2:", r2_lr, "RMSE:", rmse_lr)
+print("R2 Score:", r2_score(y_test, y_pred_lr))
+print("MAE:", mean_absolute_error(y_test, y_pred_lr))
 ```
-Résultats  :
+**Résultats :**
 
-- \(R^2 \approx\) 0.xx  
-- MSE \(\approx\) …  
-- RMSE \(\approx\) …
+  - **$R^2$ ≈ 0.93** (93%)
+  - **MAE ≈ 62.39 $**
+    
+### 4.2 Arbre de Décision
 
-La régression linéaire sert de modèle de base. Si le \(R^2\) est modéré, cela indique que la relation entre les variables explicatives et les ventes n’est pas strictement linéaire.
+L'Arbre de Décision capture les relations non-linéaires par des divisions conditionnelles successives. Il est rapide mais sujet au sur-apprentissage.
 
-### 4.2 Régression Polynomiale
-```python
-from sklearn.preprocessing import PolynomialFeatures
-
-poly = PolynomialFeatures(degree=2, include_bias=False)
-X_train_poly = poly.fit_transform(X_train)
-X_test_poly = poly.transform(X_test)
-
-model_poly = LinearRegression()
-model_poly.fit(X_train_poly, y_train)
-y_pred_poly = model_poly.predict(X_test_poly)
-
-r2_poly = r2_score(y_test, y_pred_poly)
-mse_poly = mean_squared_error(y_test, y_pred_poly)
-rmse_poly = np.sqrt(mse_poly)
-```
-Résultats :
-
-- \(R^2 \approx\) 0.xx  
-- MSE \(\approx\) …  
-- RMSE \(\approx\) …
-
-La régression polynomiale permet de capturer certaines non-linéarités. Une amélioration de \(R^2\) par rapport au modèle linéaire montre l’intérêt des termes d’interaction et des effets quadratiques.
-
-### 4.3 Arbre de Décision
 ```python
 from sklearn.tree import DecisionTreeRegressor
 
-model_dt = DecisionTreeRegressor(random_state=42)
-model_dt.fit(X_train, y_train)
-y_pred_dt = model_dt.predict(X_test)
+dt_model = DecisionTreeRegressor(random_state=42)
+dt_model.fit(X_train, y_train)
+y_pred_dt = dt_model.predict(X_test)
 
-r2_dt = r2_score(y_test, y_pred_dt)
-mse_dt = mean_squared_error(y_test, y_pred_dt)
-rmse_dt = np.sqrt(mse_dt)
+print("R2 Score:", r2_score(y_test, y_pred_dt))
+print("MAE:", mean_absolute_error(y_test, y_pred_dt))
 ```
-Résultats  :
+**Résultats :**
 
-- \(R^2 \approx\) 0.xx  
-- MSE \(\approx\) …  
-- RMSE \(\approx\) …
+  - **$R^2$ ≈ 0.87** (87%)
+  - **MAE ≈ 82.46 $**
+    
+### 4.3 Forêt Aléatoire
 
-L’arbre de décision capture des relations fortement non linéaires entre les variables explicatives et les ventes. Un \(R^2\) élevé et un RMSE réduit indiquent que ce modèle s’adapte bien à la structure des données.
+Le Random Forest utilise un ensemble de nombreux Arbres de Décision et fait la moyenne de leurs prédictions, ce qui réduit la variance et améliore la robustesse.
 
-### 4.4 Forêt Aléatoire
 ```python
 from sklearn.ensemble import RandomForestRegressor
 
-model_rf = RandomForestRegressor(n_estimators=100, random_state=42)
-model_rf.fit(X_train, y_train)
-y_pred_rf = model_rf.predict(X_test)
+rf_model = RandomForestRegressor(n_estimators=100, random_state=42)
+rf_model.fit(X_train, y_train)
+y_pred_rf = rf_model.predict(X_test)
 
-r2_rf = r2_score(y_test, y_pred_rf)
-mse_rf = mean_squared_error(y_test, y_pred_rf)
-rmse_rf = np.sqrt(mse_rf)
+print("R2 Score:", r2_score(y_test, y_pred_rf))
+print("MAE:", mean_absolute_error(y_test, y_pred_rf))
 ```
-Résultats  :
+**Résultats :**
 
-- \(R^2 \approx\) 0.xx  
-- MSE \(\approx\) …  
-- RMSE \(\approx\) …
+  - **$R^2$ ≈ 0.93** (93%)
+  - **MAE ≈ 63.04 $**
 
-La Forêt Aléatoire, en tant que méthode d’ensemble basée sur de multiples arbres, tend à offrir une meilleure généralisation en réduisant le risque de sur-apprentissage, tout en conservant une bonne capacité à modéliser des relations complexes.
+### 4.4 Support Vector Regressor
 
-### 4.5 SVR 
+Le SVR cherche à définir un hyperplan optimal avec une marge d'erreur tolérée. Il est crucial de scaler les données au préalable pour ce modèle, car il est sensible à l'échelle.
+
 ```python
-from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVR
+from sklearn.preprocessing import StandardScaler
 
 scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
-model_svr = SVR(kernel='rbf')
-model_svr.fit(X_train_scaled, y_train)
-y_pred_svr = model_svr.predict(X_test_scaled)
-r2_svr = r2_score(y_test, y_pred_svr)
-mse_svr = mean_squared_error(y_test, y_pred_svr)
-rmse_svr = np.sqrt(mse_svr)
+svr_model = SVR(kernel='rbf')
+svr_model.fit(X_train_scaled, y_train)
+y_pred_svr = svr_model.predict(X_test_scaled)
+
+print("R2 Score:", r2_score(y_test, y_pred_svr))
+print("MAE:", mean_absolute_error(y_test, y_pred_svr))
 ```
-Résultats  :
+**Résultats :**
 
-- \(R^2 \approx\) 0.xx  
-- MSE \(\approx\) …  
-- RMSE \(\approx\) …
+  - **$R^2$ ≈ 0.63** (63%)
+  - **MAE ≈ 137.61 $**
+  - **MSE ≈ 32147.57**
+  - **RMSE ≈ 179.30**
+    
+### 4.5 Gradient Boosting Regressor
 
-Les performances de SVR dépendent fortement du choix du noyau et des hyperparamètres (`C`, `gamma`, `epsilon`). Une phase de tuning peut être nécessaire pour obtenir de meilleurs résultats.
+Le Gradient Boosting construit les arbres séquentiellement. Chaque nouvel arbre est entraîné pour corriger les erreurs résiduelles faites par l'ensemble des arbres précédents, aboutissant souvent à une précision supérieure.
 
-## 4.6 Tableau Comparatif des Performances 
+```python
+from sklearn.ensemble import GradientBoostingRegressor
 
-| Modèle                 | R²    | MSE     | RMSE   | Performance         |
-|------------------------|-------|---------|--------|---------------------|
-| Régression Linéaire    | 0.54  | 1280.4  | 35.78  | ⭐⭐ Moyen          |
-| Régression Polynomiale | 0.61  | 1104.2  | 33.22  | ⭐⭐⭐ Bon           |
-| Arbre de Décision      | 0.88  | 423.1   | 20.57  | ⭐⭐⭐⭐⭐ Excellent   |
-| Forêt Aléatoire        | 0.93  | 298.4   | 17.27  | ⭐⭐⭐⭐⭐ Exceptionnel|
-| SVR                    | 0.49  | 1402.7  | 37.45  | ⭐ Faible          |
+gb_model = GradientBoostingRegressor(random_state=42)
+gb_model.fit(X_train, y_train)
+y_pred_gb = gb_model.predict(X_test)
 
-## 5. Analyse des Résultats et Recommandations
+r2_gb = r2_score(y_test, y_pred_gb)
+mae_gb = mean_absolute_error(y_test, y_pred_gb)
+mse_gb = mean_squared_error(y_test, y_pred_gb)
+rmse_gb = np.sqrt(mse_gb)
 
-**Modèle gagnant (exemple)**  
-Random Forest (ou Arbre/Forêt selon tuning) se révèle souvent meilleur sur ce type de dataset non linéaire (marketing × prix × saisonnalité).
+print("R2 Score:", r2_gb)
+print("MAE:", mae_gb)
+print("RMSE:", rmse_gb)
+```
+**Résultats :**
 
-**Features les plus influentes (exemple)** :  
-- Marketing_Spend  
-- Price_After_Discount  
-- Customer_Satisfaction  
-- Economic_Index  
-- Distribution_Score
-
-**Recommandations pratiques** :  
-- GridSearchCV / RandomizedSearchCV pour n_estimators, max_depth, min_samples_leaf.  
-- Tester LightGBM / XGBoost / CatBoost pour gains potentiels de performance.  
-- Feature engineering : interactions (ex. Marketing_Spend * Distribution_Score), historiques (lags), rolling averages.  
-- Vérifier la présence d’outliers et appliquer des transformations (log) si nécessaire.  
-- Interprétabilité : utiliser les valeurs SHAP pour expliquer les prédictions de la forêt.
-
+  - **$R^2$ ≈ 0.94** (94%)
+  - **MAE ≈ 59.08 $**
+  - **MSE ≈ 5675.85**
+  - **RMSE ≈ 75.34**
+    
 ---
 
-## 6. Conclusion
+## 5. Tableau Comparatif et Analyse
 
-## 6. Conclusion
+| Modèle | R² | MAE | MSE | RMSE | Performance |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| Gradient Boosting | 0.94 | 59.08 | 5675.85 | 75.34 | 🏆 Meilleur |
+| Régression Linéaire | 0.93 | 62.39 | - | - | ⭐ Très Bon |
+| Random Forest | 0.93 | 63.04 | - | - | ⭐ Très Bon |
+| Decision Tree | 0.87 | 82.46 | - | - | Moyen |
+| SVR | 0.63 | 137.61 | 32147.57 | 179.30 | Faible |
 
-Cette analyse prédictive des ventes basée sur le jeu de données Business_Sales(Dataset)2025 a permis de mettre en œuvre et d’illustrer plusieurs concepts fondamentaux de la data science et de la modélisation prédictive :
+### Analyse des Résultats et Recommandations
 
-1. L’importance du prétraitement des données, notamment la transformation des dates, l’encodage des variables catégorielles et la gestion des valeurs manquantes.  
-2. La mise en évidence de relations non linéaires entre les variables explicatives et les ventes, ce qui justifie l’utilisation de modèles plus complexes que la simple régression linéaire.  
-3. La comparaison systématique de plusieurs modèles de régression (linéaires, polynomiaux, arbres de décision, méthodes d’ensemble, SVR) afin de sélectionner celui qui offre les meilleures performances sur des données de test indépendantes.  
-4. Le rôle crucial des méthodes basées sur les arbres, notamment la Forêt Aléatoire, qui offrent généralement une excellente capacité prédictive et une bonne robustesse dans un contexte de données hétérogènes.
+1.  **Modèle Optimal** : Le **Gradient Boosting Regressor** est le plus performant, expliquant 94% de la variance des ventes ($R^2=0.94$) avec l'erreur moyenne la plus faible (MAE=59.08).
+2.  **Robustesse** : Les modèles basés sur l'ensemble d'arbres (Gradient Boosting et Random Forest) et la Régression Linéaire offrent les meilleurs résultats, suggérant que les données contiennent à la fois des relations linéaires et complexes.
+3.  **Prochaines Étapes** : Il est recommandé de procéder à une optimisation fine des hyperparamètres (via GridSearchCV ou RandomizedSearchCV) pour le Gradient Boosting afin de maximiser la performance et d'assurer une meilleure généralisation.
 
-En conclusion, le modèle retenu (par exemple la Forêt Aléatoire) fournit une base solide pour la prédiction des ventes futures et peut être intégré dans un processus décisionnel plus large (prévisions de ventes, gestion de stock, planification marketing). Des travaux futurs pourraient se concentrer sur l’optimisation fine des hyperparamètres, l’usage de modèles d’ensemble plus avancés et l’analyse approfondie de l’importance des variables pour guider les décisions stratégiques de l’entreprise.
+-----
+
+## 6\. Conclusion
+
+Cette analyse prédictive des ventes a démontré l'efficacité des méthodes d'ensemble pour modéliser le volume des ventes. Le modèle **Gradient Boosting Regressor** fournit une base robuste pour la prévision des ventes futures. Ces résultats peuvent directement informer les décisions stratégiques, telles que l'allocation des budgets marketing ou le positionnement des produits, en quantifiant l'impact des différentes caractéristiques sur les revenus.
+
+```
+```
