@@ -1,157 +1,51 @@
-# IZLITNE MAROUANE
+# Compte Rendu d'Analyse et de Modélisation pour la Détection de Fraude
 
-<img src="IZLITNE MAROUANE.jpg" width="200" align="left" style="margin-right: 20px; border-radius: 10px;"/>
+## 1. Introduction : Contexte, Problématique et Objectifs
 
-<br>
+### Contexte
+Cette étude porte sur l'analyse et la modélisation d'un jeu de données de transactions par carte de crédit afin d'identifier les opérations frauduleuses. L'objectif final est de développer un système automatisé capable d'évaluer le risque de chaque transaction en temps réel.[1]
 
-**Numéro d'étudiant** : 22006529  
-**Classe** : CAC2
+### Problématique
+Le problème central est une tâche de classification binaire (Fraude vs. Non-Fraude). La difficulté majeure réside dans l'asymétrie extrême des classes, avec un ratio d'environ 99 transactions légitimes pour 1 transaction frauduleuse, rendant l'entraînement des modèles difficile car ils privilégient la classe majoritaire.[2]
 
-<br clear="left"/>
+### Objectifs
+L'objectif principal est de développer un modèle mesuré par sa capacité à identifier la classe minoritaire (fraude). Les objectifs spécifiques incluent l'implémentation de techniques de pré-traitement pour données asymétriques, l'évaluation de plusieurs algorithmes de classification, et l'optimisation des hyperparamètres pour maximiser le score ROC AUC.[2]
 
----
+## 2. Méthodologie : Justification des Choix Techniques
 
+### Pré-traitement et Ingénierie de Caractéristiques
 
-# 📄 Compte Rendu — Détection de Fraude Bancaire (Machine Learning)
+| Choix Technique                  | Justification |
+|----------------------------------|---------------|
+| Ingénierie de Caractéristiques Temporelles | La colonne TransactionDate a été transformée pour extraire Year, Month, Day, DayOfWeek, Hour, car la fraude est souvent cyclique ou liée à des plages horaires spécifiques [1]. |
+| Encodage One-Hot (OHE)           | Les variables catégorielles comme TransactionType et Location ont été encodées pour éviter d'attribuer un ordre aux catégories nominales [1]. |
+| Mise à l'Échelle (StandardScaler)| La variable Amount a été standardisée pour éviter que sa magnitude domine les modèles basés sur la distance ou le gradient [1]. |
 
-## Table des Matières
-1. [Introduction](#introduction)
-2. [Problématique](#problématique)
-3. [Description du Dataset](#description-du-dataset)
-4. [Méthodologie & Code](#méthodologie--code)
-   1. [4.1 Prétraitement](#41-prétraitement)
-   2. [4.2 EDA](#42-eda)
-   3. [4.3 Modélisation](#43-modélisation)
-5. [Résultats](#résultats)
-6. [Analyse & Interprétation](#analyse--interprétation)
-7. [Conclusion](#conclusion)
+### Algorithmes de Modélisation
+Deux familles de modèles ont été choisies : Régression Logistique comme baseline pour les relations linéaires, et Random Forest pour sa robustesse face aux relations non-linéaires et interactions.[2]
 
-# Introduction
-La fraude bancaire représente un enjeu majeur pour les institutions financières. L'objectif est de construire un modèle prédictif efficace pour détecter les transactions frauduleuses.
+### Gestion du Déséquilibre de Classe
+Le paramètre class_weight='balanced' a été activé pour ajuster les poids dans la fonction de coût, attribuant un poids plus élevé aux erreurs sur la classe minoritaire.[2]
 
-# Problématique
-Comment développer un modèle de Machine Learning capable d’identifier de manière fiable les transactions frauduleuses malgré le fort déséquilibre entre les classes ?
+## 3. Résultats & Discussion : Métriques et Analyse des Erreurs
 
-# Description du Dataset
-| Variable        | Type     | Description                |
-| --------------- | -------- | -------------------------- |
-| TransactionID   | int      | Identifiant unique         |
-| TransactionDate | datetime | Date/heure                 |
-| Amount          | float    | Montant                    |
-| MerchantID      | int      | Commerçant                 |
-| TransactionType | cat.     | Type de transaction        |
-| Location        | cat.     | Ville / zone               |
-| IsFraud         | 0/1      | Target (fraude ou non)    |
+### Métriques d'Évaluation
 
-# Méthodologie & Code
+| Modèle Optimisé       | ROC AUC | F1-Score | Recall | Accuracy |
+|-----------------------|---------|----------|--------|----------|
+| Régression Logistique | 0.4732 | 0.0177  | 0.4150| 0.9890  |
+| Random Forest         | 0.4978 | 0.0000  | 0.0000| 0.9900  | [2]
 
-## 4.1 Prétraitement
-```python
-import pandas as pd
-import numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
-from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report, confusion_matrix, roc_auc_score
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier
-from xgboost import XGBClassifier
-from imblearn.over_sampling import SMOTE
-````
+### Analyse des Performances
+Les résultats sont insatisfaisants : les scores ROC AUC proches ou inférieurs à 0.5 indiquent une performance aléatoire ou pire. Le Random Forest a un Recall et F1-Score de 0, signifiant zéro détection de fraude sur le test. Les caractéristiques montrent une faible corrélation avec IsFraud, et class_weight='balanced' s'avère insuffisant.[2]
 
-```python
-df = pd.read_csv("credit_card_fraud_dataset.csv")
-df['TransactionDate'] = pd.to_datetime(df['TransactionDate'])
-df['Hour'] = df['TransactionDate'].dt.hour
-df['Day'] = df['TransactionDate'].dt.day
-df['Month'] = df['TransactionDate'].dt.month
-df['Weekday'] = df['TransactionDate'].dt.weekday
-df.drop(columns=['TransactionID', 'TransactionDate'], inplace=True)
-df = pd.get_dummies(df, drop_first=True)
-X = df.drop("IsFraud", axis=1)
-y = df["IsFraud"]
-scaler = StandardScaler()
-X_scaled = scaler.fit_transform(X)
-sm = SMOTE()
-X_res, y_res = sm.fit_resample(X_scaled, y)
-```
+## 4. Conclusion : Limites du Modèle et Pistes d'Amélioration
 
-## 4.2 EDA
+### Limites du Modèle Actuel
+Le modèle est inexploitable en raison de son incapacité à généraliser sur la classe minoritaire, de l'insuffisance de la pondération des classes pour un ratio 99:1, et de l'absence de caractéristiques comportementales comme la fréquence ou les montants anormaux.[2]
 
-```python
-# Visualisation de la distribution des classes
-sns.countplot(x='IsFraud', data=df)
-plt.title("Distribution des transactions frauduleuses vs normales")
-plt.show()
-
-# Corrélation entre variables
-plt.figure(figsize=(12,8))
-sns.heatmap(df.corr(), annot=False, cmap='coolwarm')
-plt.title("Matrice de corrélation")
-plt.show()
-```
-
-## 4.3 Modélisation
-
-```python
-log_model = LogisticRegression(max_iter=200)
-log_model.fit(X_train, y_train)
-y_pred_log = log_model.predict(X_test)
-
-rf = RandomForestClassifier(n_estimators=200)
-rf.fit(X_train, y_train)
-y_pred_rf = rf.predict(X_test)
-
-xgb = XGBClassifier(n_estimators=200, max_depth=6, learning_rate=0.1, eval_metric='logloss')
-xgb.fit(X_train, y_train)
-y_pred_xgb = xgb.predict(X_test)
-```
-
-# Résultats
-
-### Régression Logistique
-
-| Metric    | Score |
-| --------- | ----- |
-| Precision | 0.88  |
-| Recall    | 0.81  |
-| F1-Score  | 0.84  |
-| ROC-AUC   | 0.91  |
-
-### Random Forest
-
-| Metric    | Score |
-| --------- | ----- |
-| Precision | 0.95  |
-| Recall    | 0.92  |
-| F1-Score  | 0.93  |
-| ROC-AUC   | 0.98  |
-
-### XGBoost (meilleur modèle)
-
-| Metric    | Score |
-| --------- | ----- |
-| Precision | 0.96  |
-| Recall    | 0.95  |
-| F1-Score  | 0.95  |
-| ROC-AUC   | 0.99  |
-
-# Analyse & Interprétation
-
-* Dataset fortement déséquilibré, SMOTE utilisé.
-* Régression logistique limitée.
-* Random Forest améliore Recall et F1-Score.
-* XGBoost capte interactions complexes et minimise faux négatifs.
-
-# Conclusion
-
-**Points forts:** pipeline complet, SMOTE, XGBoost performant.
-**Limites:** données anonymisées, pas de validation réelle, pas de temps réel.
-**Améliorations possibles:** CatBoost, TabNet, apprentissage en ligne, déploiement API.
-
-```
-
-```
-
-
+### Pistes d'Amélioration
+- Implémenter SMOTE pour suréchantillonnage synthétique de la classe minoritaire.
+- Créer des features comme vélocité des transactions (group-by par utilisateur ou lieu sur 1h/24h/7j) et anomalies de dépenses.
+- Tester XGBoost, LightGBM ou CatBoost pour leur efficacité sur données tabulaires déséquilibrées.
+- Utiliser cost-sensitive learning pour ajuster le seuil de décision et pénaliser les faux négatifs.[2]
