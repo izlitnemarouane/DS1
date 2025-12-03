@@ -24,16 +24,7 @@ Le problème est une tâche de **classification binaire** (Fraude vs. Non-Fraude
 ### Objectifs
 L'objectif principal est de développer un modèle dont l'efficacité est mesurée par sa capacité à identifier la classe minoritaire. L'indicateur de performance clé est le **score ROC AUC**.
 
-## Installation
 
-Pour exécuter ce projet localement, clonez le dépôt et installez les dépendances listées dans `requirements.txt` :
-
-```bash
-git clone <(https://github.com/izlitnemarouane/DS1/edit/main/Analyse-CC)>
-DS1 <Analyse-CC>
-pip install -r requirements.txt
-
-```
 ## Résumé des Résultats
 Le projet a mis en œuvre une méthodologie rigoureuse incluant :
 
