@@ -1,13 +1,15 @@
 # IZLITNE MAROUANE
 
-<img src="[https://image2url.com/images/1765362643039-fefb7bd2-5dd2-4bc3-9aa0-16fbe6d080c7.png](https://image2url.com/images/1765362786985-df3bb0b1-e113-40f7-a0cc-80d894c711cb.jpg)"
-     alt="Logo MAROUANE IZLITNE"
+<img src="https://image2url.com/images/1765362786985-df3bb0b1-e113-40f7-a0cc-80d894c711cb.jpg"
+     alt="Logo marouane izlitne"
      style="height:300px; margin-right:300px; float:left; border-radius:10px;">
+
+<br><br clear="left"/>
+
 
 
 **Numéro d'étudiant** : 22006529  
 **Classe** : CAC2
-
 
 
 ---
