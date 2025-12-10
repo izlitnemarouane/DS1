@@ -1,3 +1,6 @@
+![Logo ENCG Settat](https://www.encgs.ac.ma/wp-content/uploads/2024/06/logo.png)
+
+
 # 🏡 Projet Data Science – Prédiction des Prix de l'Immobilier en Californie  
 *(Dataset : `fetch_california_housing` – scikit-learn)*[1]
 
