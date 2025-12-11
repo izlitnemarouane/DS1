@@ -22,7 +22,7 @@ Une sous-évaluation entraîne une perte de revenus, tandis qu'une sur-évaluati
 
 ***
 
-## 2. Les données (l'Input)
+##  Les données (l'Input)
 
 **Dataset California Housing** (20 640 échantillons, 8 features numériques continues).[1]
 
@@ -34,135 +34,238 @@ Une sous-évaluation entraîne une perte de revenus, tandis qu'une sur-évaluati
 
 ***
 
-## 3. Code Python Complet – Cycle de vie
-
-### 3.1 Importation des bibliothèques
-
+## 2. Le Code Python (Laboratoire)
 ```python
-# ==============================================================================
-# COURS DATA SCIENCE : CYCLE DE VIE COMPLET (SCRIPT PÉDAGOGIQUE)
-# PROBLÈME DE RÉGRESSION : PRÉDICTION DES PRIX DES MAISONS EN CALIFORNIE
-# ==============================================================================
 
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# Scikit-Learn
 from sklearn.datasets import fetch_california_housing
 from sklearn.model_selection import train_test_split
 from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
 # Configuration
 sns.set_theme(style="whitegrid")
 import warnings
 warnings.filterwarnings('ignore')
-print("✅ Bibliothèques importées.\n")
-```
 
-### 3.2 Chargement & simulation données sales
-
-```python
-# 2. CHARGEMENT
-data = fetch_california_housing(as_frame=True)
-df = data.frame
+# --- PHASE 1 : ACQUISITION & SIMULATION ---
+housing = fetch_california_housing(as_frame=True)
+df = housing.frame.copy()   # Features + target déjà combinés
 df.rename(columns={'MedHouseVal': 'target'}, inplace=True)
-print(f"📊 Dataset : {df.shape}")
 
-# 3. SIMULATION DONNÉES SALES (5% NaN)
+print(df.head())
+print(df.shape)
+
+# Simulation de la réalité (Données sales)
 np.random.seed(42)
-features_columns = df.columns[:-1]
 df_dirty = df.copy()
-for col in features_columns:
+
+# On corrompt 5% des données de chaque feature avec des NaN
+feature_cols = [c for c in df_dirty.columns if c != 'target']
+for col in feature_cols:
     df_dirty.loc[df_dirty.sample(frac=0.05, random_state=42).index, col] = np.nan
-print(f"🕳️  NaN générés : {df_dirty.isnull().sum().sum()}\n")
-```
 
-### 3.3 Nettoyage (Data Wrangling + Scaling)
+print("Nombre total de valeurs manquantes générées :",
+      df_dirty.isnull().sum().sum())
 
-```python
-# 4. NETTOYAGE
+# --- PHASE 2 : DATA WRANGLING (NETTOYAGE) ---
 X = df_dirty.drop('target', axis=1)
 y = df_dirty['target']
 
-# A. Imputation
 imputer = SimpleImputer(strategy='mean')
 X_imputed = imputer.fit_transform(X)
 X_clean = pd.DataFrame(X_imputed, columns=X.columns)
-print("✅ Imputation OK")
 
-# B. Scaling (CRUCIAL pour régression)
-scaler = StandardScaler()
-X_scaled = scaler.fit_transform(X_clean)
-X_clean_scaled = pd.DataFrame(X_scaled, columns=X_clean.columns)
-print("✅ Scaling OK\n")
-```
+print("Imputation terminée.")
+print("Valeurs manquantes restantes :", X_clean.isnull().sum().sum())
 
-**💡 Expert** : En prod, split → fit(imputer/scaler) sur Train → transform Train/Test.[4]
+# --- PHASE 3 : ANALYSE EXPLORATOIRE (EDA) ---
+print("--- Statistiques Descriptives ---")
+print(X_clean.describe())
 
-***
-
-## 4. Analyse Exploratoire (EDA)
-
-```python
-# 5. EDA
-print("📈 EDA...")
-
-# Stats cible
-print("Statistiques target :\n", y.describe())
-
-# Histogramme cible
-plt.figure(figsize=(10, 5))
-sns.histplot(y, kde=True, bins=50)
-plt.title("Distribution Prix Maisons ($100k)")
+# Exemple de visualisation 1 : Revenu médian vs Prix
+plt.figure(figsize=(8, 5))
+sns.scatterplot(x=X_clean['MedInc'], y=y, alpha=0.3)
+plt.title("Relation entre Revenu Médian (MedInc) et Prix moyen des maisons")
+plt.xlabel("MedInc (Revenu médian)")
+plt.ylabel("Valeur moyenne des maisons (target)")
 plt.show()
 
-# Corrélations avec target
+# Exemple de visualisation 2 : Matrice de corrélation
 plt.figure(figsize=(10, 8))
-corr_matrix = pd.concat([X_clean, y], axis=1).corr()
-sns.heatmap(corr_matrix[['target']].sort_values('target', ascending=False),
-            annot=True, cmap='coolwarm', fmt=".2f")
-plt.title("Corrélations avec Prix")
+corr = pd.concat([X_clean, y], axis=1).corr()
+sns.heatmap(corr, annot=True, cmap='coolwarm', fmt=".2f")
+plt.title("Matrice de Corrélation (Features + cible)")
 plt.show()
-```
 
-**Insights** : `MedInc` ≈ +0.7 corrélation. Distribution skewed (prix plafonnés).[2]
-
-***
-
-## 5. Split Train/Test
-
-```python
-# 6. SPLIT 80/20
+# --- PHASE 4 : PROTOCOLE EXPÉRIMENTAL (SPLIT) ---
 X_train, X_test, y_train, y_test = train_test_split(
-    X_clean_scaled, y, test_size=0.2, random_state=42
+    X_clean, y, test_size=0.2, random_state=42
 )
-print(f"🚂 Train: {X_train.shape[0]} | Test: {X_test.shape[0]}\n")
-```
 
-**random_state=42** = reproductibilité scientifique.[4]
+print("\nSéparation effectuée :")
+print(f"Entraînement : {X_train.shape[0]} échantillons")
+print(f"Test        : {X_test.shape[0]} échantillons")
 
-***
-
-## 6. Modélisation : RandomForestRegressor 🌲
-
-```python
-# 7. MODÈLE
-print("🤖 Entraînement Random Forest...")
-model = RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=-1)
+# --- PHASE 5 : INTELLIGENCE ARTIFICIELLE (RANDOM FOREST REGRESSOR) ---
+model = RandomForestRegressor(
+    n_estimators=200,
+    random_state=42,
+    n_jobs=-1
+)
 model.fit(X_train, y_train)
-print("✅ Modèle entraîné\n")
+
+# --- PHASE 6 : AUDIT DE PERFORMANCE ---
+y_pred = model.predict(X_test)
+
+from math import sqrt
+mse = mean_squared_error(y_test, y_pred)
+rmse = sqrt(mse)
+mae = mean_absolute_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+
+print(f"\n>>> MSE  : {mse:.3f}")
+print(f">>> RMSE : {rmse:.3f}")
+print(f">>> MAE  : {mae:.3f}")
+print(f">>> R²   : {r2:.3f}")
+
+# Visualisation : Prédictions vs Réalité
+plt.figure(figsize=(6, 6))
+plt.scatter(y_test, y_pred, alpha=0.5)
+plt.plot(
+    [y_test.min(), y_test.max()],
+    [y_test.min(), y_test.max()],
+    'r--', label="Idéal"
+)
+plt.xlabel("Valeurs réelles (y_test)")
+plt.ylabel("Prédictions (y_pred)")
+plt.title("Random Forest - Prédictions vs Réalité (California Housing)")
+plt.legend()
+plt.show()
+
 ```
 
-**Pourquoi RF ?** Réduit variance (bagging + feature randomness). Robust to outliers.[5]
+---
 
-***
+## 3. Analyse Approfondie : Nettoyage (Data Wrangling)
 
-## 7. Évaluation (Métriques Régression)
+### Le Problème Mathématique du "Vide"
+Les algorithmes d’algèbre linéaire utilisés par les modèles de régression ne peuvent pas gérer la valeur NaN (Not a Number). Une seule valeur manquante dans une des features peut faire échouer l’entraînement ou fausser complètement les calculs de distances, de moyennes ou de splits dans les arbres.
+
+### La Mécanique de l’Imputation
+Nous utilisons SimpleImputer(strategy='mean').
+
+1.  **L’Apprentissage (fit) :**  
+    L’imputer scanne par exemple la colonne MedInc pour toutes les zones, calcule la moyenne du revenu médian, et stocke cette valeur. Il fait de même pour chaque feature (AveRooms, Population, etc.).
+
+2.  **La Transformation (transform) :**  
+    Lors de la transformation, dès qu’un trou (NaN) est rencontré dans une colonne, il est remplacé par la moyenne calculée à l’étape précédente pour cette colonne.
+
+Au final, X_clean est une version “complète” du dataset, sans valeurs manquantes, compatible avec les algorithmes de Machine Learning.
+
+### 💡 Le Coin de l’Expert (Data Leakage)
+Attention : Dans un script pédagogique, on impute parfois avant le train_test_split pour simplifier. Dans un système industriel, c’est une *fuite de données* (Data Leakage).
+
+*   Pourquoi ? Si la moyenne d’une feature est calculée sur tout le dataset (Train + Test), alors les valeurs du futur jeu de test ont indirectement influencé le nettoyage du Train.
+*   La bonne pratique absolue :  
+    *   D’abord séparer (Train/Test).  
+    *   Fit l’imputer sur le Train uniquement.  
+    *   Appliquer cette imputation au Test, sans recalculer les statistiques sur le Test.
+
+---
+
+## 4. Analyse Approfondie : Exploration (EDA)
+
+C’est l’étape de "Profilage" du dataset immobilier.
+
+### Décrypter .describe()
+*   *Mean vs 50% (Médiane) :*  
+    Pour des variables comme MedInc ou HouseAge, comparer la moyenne et la médiane permet de voir si la distribution est symétrique ou tirée par des quartiers très riches / très anciens.
+*   *Std (Écart-type) :*  
+    Mesure la dispersion des valeurs : un std élevé indique de fortes différences de revenu ou de densité entre quartiers, un std très faible signalerait une variable presque constante (peu utile pour le modèle).
+
+### Corrélations et Structure Spatiale
+En regardant la *heatmap de corrélation*, on peut observer :
+
+*   Une forte corrélation positive entre MedInc (revenu médian) et la target (prix moyen des maisons), ce qui est intuitif : les zones plus riches ont des logements plus chers.
+*   Des liens entre des variables comme AveRooms, AveBedrms et les prix, qui reflètent la taille moyenne des logements.
+*   L’effet potentiel de la localisation (Latitude, Longitude) : en combinant ces variables avec la cible, on voit souvent que certaines zones géographiques (proche de la côte, par exemple) ont des prix systématiquement plus élevés.
+
+---
+
+## 5. Analyse Approfondie : Méthodologie (Split)
+
+### Le Concept : La Garantie de Généralisation
+Le but du modèle n’est pas de mémoriser les 20 640 échantillons historiques, mais d’être capable de prédire correctement les prix de logements dans de *nouveaux quartiers*.  
+Pour cela, on sépare les données en Train/Test, et le Test est utilisé uniquement à la toute fin, comme un examen de généralisation.
+
+### Les Paramètres sous le capot
+train_test_split(test_size=0.2, random_state=42)
+
+1.  *Le Ratio 80/20 :*  
+    *   80 % des données servent à l’entraînement (le modèle apprend les patterns “prix = f(features)”).
+    *   20 % sont gardés pour mesurer la performance sur des données jamais vues.
+
+2.  **La Reproductibilité (random_state) :**  
+    Fixer random_state=42 permet d’obtenir toujours la même séparation Train/Test, ce qui est essentiel pour comparer les résultats entre versions du modèle ou entre différents algorithmes.
+
+---
+
+## 6. FOCUS THÉORIQUE : L’Algorithme Random Forest 🌲
+
+Pourquoi est-ce l’algorithme "couteau suisse" préféré des Data Scientists pour ce type de données tabulaires (revenu, densité, localisation, etc.) ?
+
+### A. La Faiblesse de l’Individu (Arbre de Décision)
+Un Arbre de Décision unique découpe l’espace des features en zones et affecte un prix moyen à chaque zone.
+
+*   Problème : Il est *obsessif. Il peut se sur‑adapter au bruit d’un quartier très atypique (revenu extrêmement haut, prix extrême) et créer une règle très spécifique, ce qui conduit à une **haute variance* et des prédictions instables.
+
+### B. La Force du Groupe (Bagging)
+
+Random Forest signifie "Forêt Aléatoire". Il crée plusieurs dizaines (voire centaines) d’arbres.
+
+1.  *Le Bootstrapping (Diversité des Échantillons) :*
+    *   Chaque arbre s’entraîne sur un échantillon bootstrap différent des quartiers (avec tirage avec remise).
+    *   Conséquence : Chaque arbre a une vision légèrement différente du marché immobilier californien.
+
+2.  *Feature Randomness (Diversité des Questions) :*
+    *   À chaque split, un arbre n’a accès qu’à un sous‑ensemble aléatoire des features (par exemple un sous‑ensemble des 8 variables).
+    *   Conséquence : Certains arbres se spécialisent davantage sur les aspects géographiques (Latitude, Longitude), d’autres sur les variables socio‑démographiques (MedInc, Population), ce qui enrichit le panel d’“opinions”.
+
+### C. Le Consensus (Vote / Moyenne)
+
+Pour un nouveau quartier :
+
+*   Chaque arbre propose un prix (prédiction de régression).
+*   Le Random Forest prend la *moyenne* de ces prédictions.
+*   Les erreurs individuelles des arbres (bruit) se compensent, ne laissant que la tendance lourde (le signal).
+
+---
+
+## 7. Analyse Approfondie : 
+
+
+###  Les Métriques de Régression
+
+On regarde plusieurs métriques complémentaires :
+
+1.  *MSE (Mean Squared Error) :*  
+    Moyenne des carrés des erreurs \((y_{réel} - y_{prédit})^2\). Très sensible aux grosses erreurs : un quartier fortement mal estimé pénalise beaucoup le MSE.
+
+2.  *RMSE (Root Mean Squared Error) :*  
+    Racine du MSE, exprimée dans la même unité que la target (centaines de milliers de dollars). Donne un ordre de grandeur de l’erreur moyenne en termes de prix.
+
+3.  *MAE (Mean Absolute Error) :*  
+    Moyenne des erreurs absolues \(|y_{réel} - y_{prédit}|\). Moins influencée par les outliers, elle donne une idée plus robuste de “combien” le modèle se trompe en moyenne par quartier.
+
+4.  *R² (Coefficient de Détermination) :*  
+    Mesure la proportion de la variance des prix expliquée par le modèle. Un R² proche de 1 signifie que le modèle explique bien les différences de prix entre quartiers ; un R² proche de 0 indique un modèle peu utile.
+
 
 ```python
 # 8. ÉVALUATION
@@ -210,14 +313,18 @@ print("\n🏁 FIN")
 | **Éval** | RMSE en $100k | <0.55 typique |
 
 ***
+### Conclusion du Projet
 
-## 10. Conclusion Projet
+Ce rapport montre que la Data Science ne s’arrête pas à model.fit(). C’est une chaîne de décisions cohérentes où :
 
-Ce pipeline complet transforme un **problème métier** (évaluation immobilière) en **solution IA actionable** : de l'acquisition à l'évaluation, en passant par un EDA métier et un modèle robuste.[5][2]
-**Prochaines étapes** : Feature engineering (interactions géo/revenu), GridSearchCV, déploiement Streamlit.
+*   La compréhension du métier (immobilier, prix, variabilité entre quartiers) guide le choix du dataset, des features et de la méthode de validation.
+*   Le nettoyage, l’EDA, le split Train/Test et le choix d’un Random Forest robuste sont autant d’étapes critiques.
+*   L’interprétation des métriques (MSE, RMSE, MAE, R²) et des visualisations permet de juger si le modèle est exploitable pour des applications réelles (agences, investisseurs, collectivités) ou s’il nécessite des itérations supplémentaires.
 
-[1](https://sklearn.org/stable/modules/generated/sklearn.datasets.fetch_california_housing.html)
-[2](https://www.classes.cs.uchicago.edu/archive/2021/fall/12100-1/pa/pa5/dataset-houseprice.html)
-[3](https://irays-teknology-ltd.com/BLOG/California-Housing/)
-[4](https://inria.github.io/scikit-learn-mooc/python_scripts/datasets_california_housing.html)
-[5](https://dataloop.ai/library/model/rajistics_california_housing/)
+ch_california_housing(as_frame=True)
+
+df = data.frame
+
+df.rename(columns={'MedHouseVal': 'target'}, inplace=True)
+
+print(f"📊 Dataset : {df.shape}")
