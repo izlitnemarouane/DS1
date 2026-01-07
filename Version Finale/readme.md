@@ -5,18 +5,36 @@
      style="height:300px; margin-right:300px; float:left; border-radius:10px;">
 
 <br><br clear="left"/>
-
-
-
 **Numéro d'étudiant** : 22006529  
 **Classe** : CAC2
 
+# 📊 ENCG SETTAT - Data Science & Modélisation Prédictive
 
-# Prédiction des Prix Immobiliers en Californie 🏡
+**Dataset : California Housing (scikit-learn)**  
+**Encadrant : Pr. Abdelrahim Lerhlimi**  
+
+---
+
+## 🎯 **Mission : Prédire les prix immobiliers en Californie**
+
+Lien du dataset : https://scikit-learn.org/stable/modules/generated/sklearn.datasets.fetch_california_housing.html#sklearn.datasets.fetch_california_housing
+
+
+<div style="text-align: center; font-size: 1.2em; color: #2c5aa0;">
+🏠 <strong>Agences immobilières • Banques • Investisseurs</strong> 🏠
+</div>
+
 
 ## Description du Projet
-L’analyse « Modélisation et Prédiction des Prix Immobiliers en Californie par Forêts Aléatoires » présente un pipeline complet de régression supervisée pour estimer la valeur médiane des maisons (en centaines de milliers de dollars) à partir du dataset California Housing de scikit‑learn, qui décrit 20 640 zones géographiques au moyen de 8 variables socio‑démographiques et géographiques. Après chargement des données sous forme de DataFrame, des données « sales » sont simulées par injection de valeurs manquantes, puis un nettoyage est appliqué via une imputation par la moyenne et une standardisation des variables explicatives afin d’obtenir un jeu de données homogène et exploitable. Une analyse exploratoire est ensuite menée (statistiques descriptives, étude de la distribution de la cible, corrélations entre features et prix) pour identifier les facteurs qui influencent le plus la valeur des logements, en particulier le revenu médian et la localisation. La partie modélisation s’appuie sur un Random Forest Regressor entraîné sur un découpage train/test (80/20), choisi pour sa robustesse, sa capacité à capturer des relations non linéaires et à limiter le surapprentissage grâce au bagging et à la sélection aléatoire de variables. Les performances sont évaluées à l’aide du R² et du RMSE, complétés par un graphique « valeurs réelles vs prédictions », ce qui permet de quantifier l’erreur moyenne en unités métier et de vérifier visuellement la qualité de calibration du modèle dans une optique d’aide à la décision pour les acteurs immobiliers et financiers. Le dataset utilisé est accessible via la documentation officielle :
-Lien du dataset : https://scikit-learn.org/stable/modules/generated/sklearn.datasets.fetch_california_housing.html#sklearn.datasets.fetch_california_housing
+Cette étude déploie un pipeline complet de Machine Learning supervisé visant à prédire la valeur médiane des logements en Californie. S'appuyant sur le dataset California Housing (20 640 zones), l'analyse suit une méthodologie rigoureuse en quatre étapes :
+
+Préparation des données : Pour simuler des conditions réelles, des valeurs manquantes ont été injectées puis traitées par imputation par la moyenne. Les variables ont ensuite été standardisées pour garantir la cohérence du modèle.
+
+Exploration (EDA) : L'analyse a révélé que le revenu médian et la localisation géographique sont les principaux moteurs de la valeur immobilière.
+
+Modélisation : Le choix s'est porté sur l'algorithme Random Forest Regressor (80% train / 20% test). Ce modèle a été privilégié pour sa robustesse face aux relations non linéaires et sa capacité à éviter le surapprentissage (overfitting).
+
+Évaluation : Les performances ont été mesurées via le R² (précision globale) et le RMSE (erreur moyenne), permettant de valider la fiabilité des prédictions.
 ## Problématique
 Le problème est une tâche de **régression supervisée**. La difficulté principale réside dans la **variabilité spatiale extrême** des prix (zones côtières vs intérieures) et la **présence de valeurs aberrantes** (quartiers très chers), combinée à des données potentiellement incomplètes en contexte réel.
 
@@ -26,11 +44,16 @@ L'objectif principal est de développer un modèle dont l'efficacité est mesur�
 ## Résumé des Résultats
 Le projet a mis en œuvre une méthodologie rigoureuse incluant :
 
-**Simulation de données réalistes** : Injection de 5% de valeurs manquantes (NaN) 🕳️  
-**Imputation par moyenne** (`SimpleImputer`) pour conserver toutes les observations 📊  
-**Standardisation** des features (`StandardScaler`) pour stabiliser l'apprentissage ⚖️  
+**Simulation de données réalistes** : Injection de 5% de valeurs manquantes (NaN) 🕳️
+
+**Imputation par moyenne** (`SimpleImputer`) pour conserver toutes les observations 📊 
+
+**Standardisation** des features (`StandardScaler`) pour stabiliser l'apprentissage ⚖️
+
 **Analyse exploratoire** : Distribution des prix + corrélations (MedInc dominant) 📈  
-**Modélisation Random Forest** (`RandomForestRegressor`, 100 arbres) avec split 80/20 🔀  
+
+**Modélisation Random Forest** (`RandomForestRegressor`, 100 arbres) avec split 80/20 🔀 
+
 **Métriques clés** : R² ≈ 0.80-0.85, RMSE ≈ 0.5 ($50k d'erreur moyenne) 🎯  
 
 **Meilleures features** : `MedInc` (revenu médian), coordonnées géographiques 🗺️
