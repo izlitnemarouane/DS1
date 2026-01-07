@@ -12,7 +12,7 @@
 **Numéro d'étudiant** : 22006529  
 **Classe** : CAC2
 
-# Vidéo de présentation : https://drive.google.com/file/d/1jYMS5vVjKU5KlbxXeOxNK072qVyZ89WM/view?usp=sharing
+### Vidéo de présentation : https://drive.google.com/file/d/1jYMS5vVjKU5KlbxXeOxNK072qVyZ89WM/view?usp=sharing
 
 # 🏡 Projet Data Science – Prédiction des Prix de l'Immobilier en Californie  
 *(Dataset : `fetch_california_housing` – scikit-learn)*[1]
@@ -345,11 +345,3 @@ Ce rapport montre que la Data Science ne s’arrête pas à model.fit(). C’est
 *   La compréhension du métier (immobilier, prix, variabilité entre quartiers) guide le choix du dataset, des features et de la méthode de validation.
 *   Le nettoyage, l’EDA, le split Train/Test et le choix d’un Random Forest robuste sont autant d’étapes critiques.
 *   L’interprétation des métriques (MSE, RMSE, MAE, R²) et des visualisations permet de juger si le modèle est exploitable pour des applications réelles (agences, investisseurs, collectivités) ou s’il nécessite des itérations supplémentaires.
-
-ch_california_housing(as_frame=True)
-
-df = data.frame
-
-df.rename(columns={'MedHouseVal': 'target'}, inplace=True)
-
-print(f"📊 Dataset : {df.shape}")
