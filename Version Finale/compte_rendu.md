@@ -1,7 +1,16 @@
-<img src="https://www.encgs.ac.ma/wp-content/uploads/2024/06/logo.png"
-     alt="Logo ENCG Settat"
+
+# IZLITNE MAROUANE
+
+<img src="https://image2url.com/images/1765362786985-df3bb0b1-e113-40f7-a0cc-80d894c711cb.jpg"
+     alt="Logo marouane izlitne"
      style="height:300px; margin-right:300px; float:left; border-radius:10px;">
 
+<br><br clear="left"/>
+
+
+
+**Numéro d'étudiant** : 22006529  
+**Classe** : CAC2
 
 # 🏡 Projet Data Science – Prédiction des Prix de l'Immobilier en Californie  
 *(Dataset : `fetch_california_housing` – scikit-learn)*[1]
