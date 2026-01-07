@@ -12,6 +12,8 @@
 **Numéro d'étudiant** : 22006529  
 **Classe** : CAC2
 
+# Vidéo de présentation : https://drive.google.com/file/d/1jYMS5vVjKU5KlbxXeOxNK072qVyZ89WM/view?usp=sharing
+
 # 🏡 Projet Data Science – Prédiction des Prix de l'Immobilier en Californie  
 *(Dataset : `fetch_california_housing` – scikit-learn)*[1]
 
