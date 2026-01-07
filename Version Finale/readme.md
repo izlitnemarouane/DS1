@@ -8,15 +8,13 @@
 **Numéro d'étudiant** : 22006529  
 **Classe** : CAC2
 
-# 📊 ENCG SETTAT - Data Science & Modélisation Prédictive
-
-**Dataset : California Housing (scikit-learn)**  
-**Encadrant : Pr. Abdelrahim Lerhlimi**  
+  
+# Encadrant : Pr. Abderrahim larhlimi 
 
 ---
-
+# 📊 ENCG SETTAT - Data Science & Modélisation Prédictive
 ## 🎯 **Mission : Prédire les prix immobiliers en Californie**
-
+**Dataset : California Housing (scikit-learn)**
 Lien du dataset : https://scikit-learn.org/stable/modules/generated/sklearn.datasets.fetch_california_housing.html#sklearn.datasets.fetch_california_housing
 
 
